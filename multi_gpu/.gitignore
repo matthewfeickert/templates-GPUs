@@ -8,3 +8,6 @@ out*
 err*
 job*
 model_with*
+# pixi environments
+.pixi/*
+!.pixi/config.toml

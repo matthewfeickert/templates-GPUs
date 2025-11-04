@@ -10,20 +10,31 @@ error = err_$(Cluster)_$(Process).err
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = http://proxy.chtc.wisc.edu/SQUID/gpu-examples/Miniconda3-latest-Linux-x86_64.sh, env.yml, model_parallel.py
+transfer_input_files = pixi.toml, pixi.lock, model_parallel.py
+
+request_cpus = 4
+
+# Edit how many GPUs are requested on the next line
+request_gpus = 2
+request_memory = 48GB
+request_disk = 40GB
 
 # To demonstrate multi-GPU jobs, restrict them to run only on a limited
 # set of GPUs with a specific compute capability
 # Research multi-GPU jobs would typically use a larger range of GPUs
-require_gpus = (Capability == 7.5) && (DriverVersion >= 11.3)
-request_cpus = 4
 
-# Edit how many GPUs are requested on the next line
-request_gpus = 1
-request_memory = 48GB
-request_disk = 40GB
+requirements = (GPUs_DriverVersion >= 12.0)
 
-requirements = (OpSysMajorVer==7 || OpSysMajorVer==8)
+# Specify the GPU hardware architecture required
+# Check against the CUDA GPU Compute Capability for your software
+# e.g. python -c "import torch; print(torch.cuda.get_arch_list())"
+# The listed 'sm_xy' values show the x.y gpu capability supported
+#
+# Note that given
+# https://github.com/conda-forge/cudnn-feedstock/issues/124
+# there can be segfaults for cudnn>=9.11 on pre-Turing devices (<=sm_70)
+# so use sm_70 as a safer lower bound
+gpus_minimum_capability = 7.0
 
 +WantGPULab = true
 +GPUJobLength = "short"
