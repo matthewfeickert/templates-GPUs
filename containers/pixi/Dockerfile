@@ -13,7 +13,18 @@ ENV CONDA_OVERRIDE_CUDA=$CUDA_VERSION
 RUN pixi install --locked --environment $ENVIRONMENT
 # Activate ENVIRONMENT at container runtime by using the Pixi environment
 # activation script as the container ENTRYPOINT
+# Batch systems (e.g. HTCondor's container universe) run the container as a
+# host uid with no /etc/passwd entry and a scrubbed environment, so
+# getpass.getuser() raises OSError (e.g. at 'import torch' time when
+# resolving the torchinductor cache dir). Export fallback USER and LOGNAME
+# so getpass.getuser() never needs the passwd database.
+# Similarly, HOME defaults to the unwritable '/' for uids without a passwd
+# entry, which breaks anything writing to ~/.cache (torch hub, matplotlib,
+# fontconfig), so fall back to a writable temporary directory.
 RUN echo "#!/usr/bin/env bash" > /app/entrypoint.sh && \
+    echo 'export USER="${USER:-$(id -u)}"' >> /app/entrypoint.sh && \
+    echo 'export LOGNAME="${LOGNAME:-$USER}"' >> /app/entrypoint.sh && \
+    echo '[ -w "${HOME:-/}" ] || export HOME="$(mktemp -d)"' >> /app/entrypoint.sh && \
     pixi shell-hook --environment $ENVIRONMENT --shell bash >> /app/entrypoint.sh && \
     echo 'exec "$@"' >> /app/entrypoint.sh
 
