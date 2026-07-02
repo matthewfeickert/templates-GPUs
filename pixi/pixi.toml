@@ -1,7 +1,7 @@
 [workspace]
 channels = ["conda-forge"]
 name = "pixi"
-platforms = [{ name = "linux-64-cuda", platform = "linux-64", cuda = "12.9" }]
+platforms = [{ name = "linux-64-cuda", platform = "linux-64", cuda = "12" }]
 requires-pixi = ">=0.71.0"
 version = "0.1.0"
 

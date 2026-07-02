@@ -18,7 +18,7 @@ The Pixi workspace in this example was created with the equivalent of the follow
 
 ```bash
 pixi init
-pixi workspace platform add --cuda 12.9 linux-64-cuda=linux-64
+pixi workspace platform add --cuda 12 linux-64-cuda=linux-64
 pixi workspace platform remove linux-64
 pixi add pytorch-gpu torchvision 'cuda-version 12.9.*' --no-install
 pixi task add --description "Train a PyTorch CNN classifier on the MNIST dataset" train "python ./main.py --epochs 20 --save-model"
@@ -29,7 +29,7 @@ pixi task add --description "Train a PyTorch CNN classifier on the MNIST dataset
 >
 > ```bash
 > pixi init
-> pixi workspace platform add --cuda 12.9 linux-64-cuda=linux-64
+> pixi workspace platform add --cuda 12 linux-64-cuda=linux-64
 > pixi workspace platform remove linux-64
 > CONDA_OVERRIDE_CUDA=12.9 pixi add pytorch-gpu torchvision 'cuda-version 12.9.*' --no-install
 > pixi task add --description "Train a PyTorch CNN classifier on the MNIST dataset" train "python ./main.py --epochs 20 --save-model"
@@ -40,7 +40,7 @@ pixi task add --description "Train a PyTorch CNN classifier on the MNIST dataset
 >
 > ```bash
 > pixi init
-> pixi workspace platform add --cuda 12.9 linux-64-cuda=linux-64
+> pixi workspace platform add --cuda 12 linux-64-cuda=linux-64
 > pixi add --platform linux-64-cuda pytorch-gpu torchvision 'cuda-version 12.9.*' --no-install
 > pixi task add --platform linux-64-cuda --description "Train a PyTorch CNN classifier on the MNIST dataset" train "python ./main.py --epochs 20 --save-model"
 > ```
