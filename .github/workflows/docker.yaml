@@ -1,0 +1,100 @@
+name: Docker Images
+
+on:
+  push:
+    # branches:
+    #   - main
+    # tags:
+    #   - 'v*'
+    # paths:
+    #   - 'containers/pixi/pixi.toml'
+    #   - 'containers/pixi/pixi.lock'
+    #   - 'containers/pixi/Dockerfile'
+    #   - 'containers/pixi/.dockerignore'
+  pull_request:
+    paths:
+      - 'containers/pixi/pixi.toml'
+      - 'containers/pixi/pixi.lock'
+      - 'containers/pixi/Dockerfile'
+      - 'containers/pixi/.dockerignore'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  docker:
+    name: Build and publish images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Free disk space
+        uses: AdityaGarg8/remove-unwanted-software@v5
+        with:
+          remove-android: 'true'
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          # images: |
+          #   ghcr.io/chtc/templates-gpus
+          images: |
+            ghcr.io/matthewfeickert/templates-gpus
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=raw,value=mnist-gpu-noble-cuda-12.9
+            type=raw,value=latest
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test build
+        id: docker_build_test
+        uses: docker/build-push-action@v7
+        with:
+          context: containers/pixi
+          file: containers/pixi/Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          pull: true
+
+      - name: Deploy build
+        id: docker_build_deploy
+        uses: docker/build-push-action@v7
+        with:
+          context: containers/pixi
+          file: containers/pixi/Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          pull: true
+          push: ${{ github.event_name != 'pull_request' }}
