@@ -6,9 +6,9 @@ docker_pull_policy = missing
 container_image = docker://ghcr.io/matthewfeickert/templates-gpu:mnist-gpu-noble-cuda-12.9
 
 # set the log, error and output files
-log = mnist_gpu_$(Cluster)_$(Process).log.txt
-error = mnist_gpu_$(Cluster)_$(Process).err.txt
-output = mnist_gpu_$(Cluster)_$(Process).out.txt
+log = mnist_gpu_docker_$(Cluster)_$(Process).log.txt
+error = mnist_gpu_docker_$(Cluster)_$(Process).err.txt
+output = mnist_gpu_docker_$(Cluster)_$(Process).out.txt
 
 # allow for tailing files as updated
 stream_error = true
