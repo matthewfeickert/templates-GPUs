@@ -136,7 +136,7 @@ apptainer build --mksquashfs-args '-processors 16 -mem 8G -comp zstd -Xcompressi
 Once the container image is built, run it as a container to verify that the image was built correctly and has the specified software environment
 
 ```
-apptainer run --containall --writable-tmpfs ./mnist-gpu-noble-cuda-12.9.sif pixi list
+apptainer run --containall --writable-tmpfs ./mnist-gpu-noble-cuda-12.9.sif pixi list --platform linux-64-cuda
 ```
 
 After you have verified that things are working, transfer the Apptainer container image to your CHTC staging area
