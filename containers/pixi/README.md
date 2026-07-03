@@ -147,7 +147,7 @@ After you have verified that things are working, transfer the Apptainer containe
 
 ```
 mkdir -p /staging/$USER/apptainer/
-mv ./mnist-gpu-noble-cuda-12.9.sif /staging/$USER/apptainer/mnist-gpu-noble-cuda-12.9-sha-80ec247.sif
+mv ./mnist-gpu-noble-cuda-12.9.sif /staging/$USER/apptainer/mnist-gpu-noble-cuda-12.9-sha-57a01af.sif
 ```
 
 > [!WARNING]
@@ -179,7 +179,7 @@ HTCondor submission syntax.
 **Example**:
 
 ```
-container_image = osdf:///chtc/staging/<user name>/apptainer/mnist-gpu-noble-cuda-12.9-sha-80ec247.sif
+container_image = osdf:///chtc/staging/<user name>/apptainer/mnist-gpu-noble-cuda-12.9-sha-57a01af.sif
 ```
 
 > [!TIP]
