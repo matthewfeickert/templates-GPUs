@@ -120,13 +120,18 @@ condor_submit -i ./build_apptainer_container.sub
 Once the interactive job starts, execute the Apptainer build
 
 ```
+export MALLOC_ARENA_MAX=1000000
 apptainer build --mksquashfs-args '-processors 16 -mem 8G -comp zstd -Xcompression-level 3' mnist-gpu-noble-cuda-12.9.sif ./apptainer.def
 ```
 
 > [!IMPORTANT]
 > The `--mksquashfs-args` option (Apptainer v1.4.0+) bounds `mksquashfs` to the resources requested in `build_apptainer_container.sub` (`-processors` should match `request_cpus` and `-mem` should be about half of `request_memory`).
 > By default `mksquashfs` spawns one compression thread per build host CPU core and sizes its caches at 25% of the host's physical memory, ignoring the HTCondor job's resource limits, which crashes the SIF creation step on memory-limited slots.
-> Limiting the processor count also avoids a known `mksquashfs` segmentation fault under proot on hosts with many CPU cores, which is only worked around in Apptainer v1.5.2+.
+
+> [!IMPORTANT]
+> The `MALLOC_ARENA_MAX=1000000` export works around a known segmentation fault (`exit status 139`) in `mksquashfs` when it is run under `proot`, as happens during unprivileged builds with Apptainer v1.5.0 and v1.5.1 ([apptainer/apptainer#3560](https://github.com/apptainer/apptainer/issues/3560)).
+> Those Apptainer versions pin `MALLOC_ARENA_MAX=32` in the `mksquashfs` environment, which crashes once `mksquashfs` runs more than ~32 threads (roughly 2 threads per `-processors`); the exported value takes precedence over the pinned one and matches the fix shipped in Apptainer v1.5.2+, where the export is no longer needed.
+> Alternatively, the (hidden) `apptainer build --ignore-proot` option skips the `proot` wrapping of `mksquashfs` entirely, avoiding the crash at the cost of all files in the SIF image being owned by `root` — fine for runtime containers like this one that are not sensitive to file ownership.
 
 > [!TIP]
 > SIF compression parallelizes near-linearly with CPU cores, and `zstd` at a low compression level compresses several times faster than the default `gzip` at comparable output size: the ~10 GB rootfs of this example takes ~10 minutes with 2 cores and `gzip` but under a minute with 16+ cores and `zstd`.
