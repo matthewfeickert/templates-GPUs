@@ -120,8 +120,13 @@ condor_submit -i ./build_apptainer_container.sub
 Once the interactive job starts, execute the Apptainer build
 
 ```
-apptainer build mnist-gpu-noble-cuda-12.9.sif ./apptainer.def
+apptainer build --mksquashfs-args '-processors 2 -mem 4G' mnist-gpu-noble-cuda-12.9.sif ./apptainer.def
 ```
+
+> [!IMPORTANT]
+> The `--mksquashfs-args` option (Apptainer v1.4.0+) bounds `mksquashfs` to the resources requested in `build_apptainer_container.sub` (`-processors` should match `request_cpus`).
+> By default `mksquashfs` spawns one compression thread per build host CPU core and sizes its caches at 25% of the host's physical memory, ignoring the HTCondor job's resource limits, which crashes the SIF creation step on memory-limited slots.
+> Limiting the processor count also avoids a known `mksquashfs` segmentation fault under proot on hosts with many CPU cores, which is only worked around in Apptainer v1.5.2+.
 
 Once the container image is built, run it as a container to verify that the image was built correctly and has the specified software environment
 
